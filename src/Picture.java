@@ -1,12 +1,5 @@
 /**
  * This class implements a Picture Game.
- *
- * Lets ask ourselves a few questions.
- * - What does parseArgs() do?
- * - Is extractWord() getting the last remaining word read from the file?
- * - Check startTheGame(String[]) and explain each block of the method.
- * - Check guessedCorrectly(String) and explain each block of the method.
- *
  */
 
 import java.util.Scanner;
@@ -14,190 +7,106 @@ import java.util.Vector;
 import java.io.File;
 import java.util.Vector;
 import java.util.Random;
+import java.io.FileNotFoundException;
 
 
 public class Picture {
-	private Scanner theInput		= new Scanner(System.in);
-	private String theOriginalWordToGuess;
-	private String theWordToGuess;
-	private String theWordShownToTheUser	= null;
-	private int soManyGuesses 		= 0;
-	private int soManyCorrectGuesses 	= 0;
-	final private int MAX_GUESSES 		= 3;
-	final private Vector<String> pickAWordFromHere = new Vector<String>();
-	Vector<String> thePicture		= new Vector<String>();
-	final String DOT = ".";
-	static Random randomNumberGenerator 	= new Random();
+	final static String DOT = ".";
+	final static Random randomNumberGenerator 	= new Random();
 
-	private void printTheWords()	{
-		for ( int index = 0; index < pickAWordFromHere.size(); index ++ )	{
-			System.out.println(index  + "/" + pickAWordFromHere.size() + ":	" + pickAWordFromHere.elementAt(index) );
-		}
-	}
+	final static int ME 			= 0;
+	final static int YOU 			= 1;
+	final static String[] thePlayers	= { "First", "Second" };
+	final static Vector[]thePictures 	= new Vector[2];
+	static String[][] yourWords 		= new String[2][2];
+	static int[] correctGuessedInPrecentage = new int[2];
 
-	private void printThePicture()	{
-		int lengthOfWord = theWordToGuess.length();
-		int printEverXthWord = ( lengthOfWord - soManyCorrectGuesses) + 1;
-
-		int globalCharCounter = 1;
-		for ( int index = 0; index <  thePicture.size(); index ++ )	{
+	private static void printThePicture(int id)	{
+		
+		Vector<String> thePicture = thePictures[id];
+		for ( int index = 0; index <  thePictures[id].size(); index++ )	{
 			System.out.print("       ");
 			for ( int xOuter = 0; xOuter < thePicture.elementAt(index).length(); xOuter++ )	{
-				if ( globalCharCounter++ % printEverXthWord == 0 )
+				if ( randomNumberGenerator.nextInt(101) <= correctGuessedInPrecentage[id] )
 					System.out.print(thePicture.elementAt(index).charAt(xOuter) );
 				else
 					System.out.print(DOT);
 			}
 			System.out.println();
 		}
-	}
-
-	private void fillTheWordsVector(Scanner theWords)	{
-		while ( theWords.hasNext() )
-			pickAWordFromHere.add(theWords.next());
-	}
-
-	private void fillThePicture(Scanner thePictureInput)	{
-		while ( thePictureInput.hasNextLine() )	{
-			thePicture.add( thePictureInput.nextLine() );
-
-		}
-	}
-
-	private void parseArgs(String[] args)	{
-		try {
-			for ( int index = 0; index < args.length; index ++ )	{
-				if ( args[index].equals("-words") )	{
-					Scanner theWords = new Scanner(new File( args[index+1]) );
-					fillTheWordsVector(theWords);
-					theWords.close();
-				} else if ( args[index].equals("-picture") )	{
-					Scanner thePicture = new Scanner(new File( args[index+1]) );
-					fillThePicture(thePicture);
-					thePicture.close();
-				}
+ 	}
+	private static void fillThePicture(String fileName, int id)	{
+		thePictures[id] = new Vector();
+		try { 
+			Scanner aScanner = new Scanner(new File( fileName) );
+			while ( aScanner.hasNextLine() )	{
+				thePictures[id].add( aScanner.nextLine() );
 			}
-		} catch (Exception e )	{
-			System.err.println("Arguments could not be parsed.");
-			e.printStackTrace();
-			System.exit(1);
+		} catch ( Exception e )	{}
+ 	}
+	private static void parseArgs(String[] args)	{
+		for ( int index = 0; index < args.length; index += 3 )	{
+			int id = ( args[index].equals("-me") ? ME : YOU ) ;
+			yourWords[id][0] = args[index + 2].replace(".txt", "" );
+			fillThePicture( args[index + 1], id);
 		}
 	}
-
-	private int createRandomNumber(int bound )	{
-		return randomNumberGenerator.nextInt(bound);
-	}
-
-	private boolean areThereAnyWordsLeft()	{
-		boolean rValue;
-		if ( ( rValue = ( pickAWordFromHere.size() == 0 ) ) )	{
-			System.out.println("No more words left to guess");
-			System.out.println("I hope you enjoyed the game, bye!");
+	private static void calculateCorrecntessAndPrint(int id )	{
+		int soManyGuessed = yourWords[id][1].length();
+		String tmpString = yourWords[id][1];
+		for ( int position = 0; position < yourWords[id][1].length(); position ++ )	{
+			if  ( ("" + yourWords[id][1].charAt(position)).equals(DOT) )
+				soManyGuessed--;
 		}
-		return !rValue;
+		correctGuessedInPrecentage[id] = (int)( 100.0 * 
+				( (double)soManyGuessed / (double)yourWords[id][1].length() ) );
 	}
-
-	private String extractWord()	{
-		String randomWord = null;
-		int thisWord = 0;
-		if ( pickAWordFromHere.size() > 1 )	{
-			thisWord = createRandomNumber(pickAWordFromHere.size() - 1 );
-		}
-		randomWord =  pickAWordFromHere.elementAt(thisWord);
-		pickAWordFromHere.remove(thisWord);
-		theWordShownToTheUser = randomWord.replaceAll(DOT, DOT);
-		soManyCorrectGuesses = 0;
-		return randomWord;
-	}
-
-	private boolean guessedCorrectly(String theGuess)	{
-		int positionOfChar;
-
-		// what does positionOfChar being negative signals?
-		boolean correctGuess  = ( ( positionOfChar = theWordToGuess.indexOf(theGuess) )  >= 0 );
-
-		// is this block executed if the user type a letter a second time?
-		// (assuming the letter only appears once)
-		if ( correctGuess )	{
-			char[] theWordAsArray = theWordShownToTheUser.toCharArray();
-			int index = 0;
-			boolean unmodified = true;
-
-			// what is this loop going over? hint: array of something
-			// what is the while stopping condition?
-			while ( unmodified && ( index < theWordAsArray.length ) )	{
-
-				// what does the condition below tests?
-				if (  theWordToGuess.charAt(index) == theWordToGuess.charAt(positionOfChar) )	{
-					unmodified = false;
-
-					//what does these three lines below does?
-					theWordAsArray[index] = theWordToGuess.charAt(positionOfChar);
-					String replacedWithDot = theWordToGuess.substring( positionOfChar, positionOfChar + 1 );
-					theWordToGuess = theWordToGuess.replaceFirst(replacedWithDot, DOT );
-				}
-				index ++;
+	private static boolean guess(Scanner input, int id )	{
+		String theGuess;
+		boolean rValue = false;
+		int 	position = 0;
+		System.out.print(thePlayers[id] + " your turn (" + yourWords[id][1] + "): ");
+		if ( input.hasNext() )	{
+			theGuess = input.next();
+			if ( rValue = ( ( position = yourWords[id][0].indexOf(theGuess) ) >= 0 ) )	{
+				yourWords[id][1] = yourWords[id][1].substring(0, position ) + 
+						   theGuess +
+						   yourWords[id][1].substring(position + 1);
+				System.out.println( "	You guess was correct: " + yourWords[id][1] );
+				calculateCorrecntessAndPrint(id);
+				printThePicture(id);
 			}
-			theWordShownToTheUser = new String(theWordAsArray);
 		}
-		return  correctGuess;
+		return rValue;
 	}
-
-	private boolean notDone()	{
-		return   ( (soManyGuesses >= MAX_GUESSES ) || ( theWordShownToTheUser.indexOf(".") < 0 ) );
-	}
-
-	private void printPicture()	{
-		for ( int line = 0; line < thePicture.size(); line ++ )	{
-			System.out.println(thePicture.elementAt(line));
+	private static void initWords()	{
+		for ( int id = ME; id <= YOU; id++ )	{
+			yourWords[id][1]= yourWords[id][0].replaceAll(".", DOT);
 		}
 	}
+	private static void playTheGame()	{
+		Scanner userGuessInput           = new Scanner(System.in);
+		boolean oneIsDone  = false;
+		initWords();
+		do {
+			for ( int id = ME; id <= YOU; id++ )	{
+				guess(userGuessInput, id);
+				oneIsDone |=  ( yourWords[id][1].indexOf(DOT) < 0 );
+			}
 
-	private void printWord()	{
-		System.out.println(soManyGuesses + ": " + theWordShownToTheUser );
+		} while ( ! oneIsDone );
+		for ( int id = ME; id <= YOU; id++ )	{
+			if (  yourWords[id][1].indexOf(DOT) < 0 ) {
+				System.out.println("This word guessed correctly was: " + yourWords[id][0]);
+			}
+		}
+		userGuessInput.close();
 	}
-
-	private void startTheGame(String[] args)	{
+	private static void startTheGame(String[] args)	{
 		parseArgs(args);
-		String guess = null;
-
-		while ( areThereAnyWordsLeft() )	{
-			theWordToGuess = extractWord();
-			theOriginalWordToGuess = theWordToGuess;
-			soManyGuesses = 0;
-			do {
-				printThePicture();
-				printWord();
-
-//				- What is if ( theInput.hasNext() ) testing?
-				if ( theInput.hasNext() )
-					guess = theInput.next();
-				else {
-					System.err.println("Can not read input. Bye ");
-					System.exit(2);
-				}
-
-//				*   - What is if ( ! guessedCorrectly(guess) ) testing?
-				if ( ! guessedCorrectly(guess) )
-					soManyGuesses ++;
-				else
-					soManyCorrectGuesses++;
-
-//				*   - What is if ( theWordShownToTheUser.indexOf(DOT) < 0 ) testing?
-				if ( theWordShownToTheUser.indexOf(DOT) < 0 )	{
-					printThePicture();
-					System.out.println("The word was: " +  theOriginalWordToGuess + "\n\n");
-				}
-
-//				*   - What is if (soManyGuesses >= MAX_GUESSES ) testing?
-				if (soManyGuesses >= MAX_GUESSES )
-					System.out.println("You failed guessing the word!");
-			} while ( ! notDone() );
-		}
-
+		playTheGame();
 	}
-
 	public static void main( String[] args ) {
-		new Picture().startTheGame(args);
+		startTheGame(args);
 	}
 }
