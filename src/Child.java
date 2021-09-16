@@ -4,7 +4,7 @@
  * - Notice that when calling an overloaded constructor, the parent default
  * constructor is still called (equivalent to having a super() call before
  * anything in the child's constructor)
- * - How could we the child default constructor ALSO be called?
+ * - How could we make the child default constructor ALSO be called?
  *
  */
 public class Child extends Parent {
