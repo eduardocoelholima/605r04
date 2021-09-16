@@ -5,6 +5,7 @@ as some notes used in RIT course CSCI605's recitation
 sessions.
 
 ---
+
 ### HW3.1
 - StringIntegerArrays.java
 
@@ -20,15 +21,15 @@ sessions.
 ### etc
 - Scanner2.java
 - Scanner3.java
+- Args.java
+- NotCorrect.java
+- AnOtherExample.java
+- QuestionMark.java
 - RegularExample2.java
 - Parent.java
 - Child.java
 - A.java
 - B.java
-- Args.java
-- AnOtherExample.java
-- NotCorrect.java
-- QuestionMark.java
 
 
 
