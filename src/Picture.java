@@ -17,12 +17,11 @@ public class Picture {
 	final static int ME 			= 0;
 	final static int YOU 			= 1;
 	final static String[] thePlayers	= { "First", "Second" };
-	final static Vector[]thePictures 	= new Vector[2];
+	final static Vector[] thePictures 	= new Vector[2];
 	static String[][] yourWords 		= new String[2][2];
 	static int[] correctGuessedInPrecentage = new int[2];
 
 	private static void printThePicture(int id)	{
-		
 		Vector<String> thePicture = thePictures[id];
 		for ( int index = 0; index <  thePictures[id].size(); index++ )	{
 			System.out.print("       ");
@@ -34,16 +33,20 @@ public class Picture {
 			}
 			System.out.println();
 		}
- 	}
+	}
+
 	private static void fillThePicture(String fileName, int id)	{
 		thePictures[id] = new Vector();
-		try { 
+		try {
 			Scanner aScanner = new Scanner(new File( fileName) );
 			while ( aScanner.hasNextLine() )	{
 				thePictures[id].add( aScanner.nextLine() );
 			}
-		} catch ( Exception e )	{}
- 	}
+		} catch ( Exception e )	{
+//			System.out.println(e);
+		}
+	}
+
 	private static void parseArgs(String[] args)	{
 		for ( int index = 0; index < args.length; index += 3 )	{
 			int id = ( args[index].equals("-me") ? ME : YOU ) ;
@@ -51,6 +54,7 @@ public class Picture {
 			fillThePicture( args[index + 1], id);
 		}
 	}
+
 	private static void calculateCorrecntessAndPrint(int id )	{
 		int soManyGuessed = yourWords[id][1].length();
 		String tmpString = yourWords[id][1];
@@ -58,9 +62,10 @@ public class Picture {
 			if  ( ("" + yourWords[id][1].charAt(position)).equals(DOT) )
 				soManyGuessed--;
 		}
-		correctGuessedInPrecentage[id] = (int)( 100.0 * 
+		correctGuessedInPrecentage[id] = (int)( 100.0 *
 				( (double)soManyGuessed / (double)yourWords[id][1].length() ) );
 	}
+
 	private static boolean guess(Scanner input, int id )	{
 		String theGuess;
 		boolean rValue = false;
@@ -69,9 +74,9 @@ public class Picture {
 		if ( input.hasNext() )	{
 			theGuess = input.next();
 			if ( rValue = ( ( position = yourWords[id][0].indexOf(theGuess) ) >= 0 ) )	{
-				yourWords[id][1] = yourWords[id][1].substring(0, position ) + 
-						   theGuess +
-						   yourWords[id][1].substring(position + 1);
+				yourWords[id][1] = yourWords[id][1].substring(0, position ) +
+						theGuess +
+						yourWords[id][1].substring(position + 1);
 				System.out.println( "	You guess was correct: " + yourWords[id][1] );
 				calculateCorrecntessAndPrint(id);
 				printThePicture(id);
@@ -79,11 +84,13 @@ public class Picture {
 		}
 		return rValue;
 	}
+
 	private static void initWords()	{
 		for ( int id = ME; id <= YOU; id++ )	{
 			yourWords[id][1]= yourWords[id][0].replaceAll(".", DOT);
 		}
 	}
+
 	private static void playTheGame()	{
 		Scanner userGuessInput           = new Scanner(System.in);
 		boolean oneIsDone  = false;
@@ -102,10 +109,12 @@ public class Picture {
 		}
 		userGuessInput.close();
 	}
+
 	private static void startTheGame(String[] args)	{
 		parseArgs(args);
 		playTheGame();
 	}
+
 	public static void main( String[] args ) {
 		startTheGame(args);
 	}
