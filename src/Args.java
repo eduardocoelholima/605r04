@@ -12,16 +12,25 @@ public class  Args {
 	int    anInt   = -1;
 	String aString = "a";
 	int[]  anArray = { 4, 2 };
+	Integer anIntObject = -1;
 
-	public void print() {
-		System.out.println("anInt: " + anInt);
+	public void printAnInt() {
+		System.out.println("printAnInt: " + anInt);
 	}
-	public void testArgs(Args arg )      {
+	public void printAnIntObject() {
+		System.out.println("printAnIntObject: " + anIntObject);
+	}
+
+	public void increaseAnInt(Args arg )      {
 		arg.anInt += 1;
+	}
+	public void increaseAnIntObject(Args arg )      {
+		arg.anIntObject += 1;
 	}
 
 	public void testString(String arg )      {
 		arg = "b";
+//		System.out.printf("arg = %s\n", arg);
 	}
 	public void testArray(int[] arg )      {
 		arg[1] = 3;
@@ -29,38 +38,54 @@ public class  Args {
 	public void testInt(int arg )      {
 		arg = 42;
 	}
+	public void testIntObject(Integer arg )      {
+		arg = 42;
+	}
+
 
 	public void testArgs()      {
-		System.out.println("1.	" + aString);
+		System.out.println("testArgs.	" + aString);
 		testArgs();
-		System.out.println("2.	" + aString);
+		System.out.println("testArgs.	" + aString);
 	}
 	public void testString()	{
-		System.out.println("1.	" + aString);
+		System.out.println("testString.	" + aString);
 		testString(aString);
-		System.out.println("2.	" + aString);
+		System.out.println("testString.	" + aString);
 	}
 	public void testArray()	{
-		System.out.println("3.	" + anArray[0] + ", " + anArray[1]);
+		System.out.println("testArray.	" + anArray[0] + ", " + anArray[1]);
 		testArray(anArray);
-		System.out.println("4.	" + anArray[0] + ", " + anArray[1]);
+		System.out.println("testArray.	" + anArray[0] + ", " + anArray[1]);
 	}
 	public void testInt()	{
-		System.out.println("5.	" + anInt );
+		System.out.println("testInt.	" + anInt );
 		testInt(anInt);
-		System.out.println("6.	" + anInt );
+		System.out.println("testInt.	" + anInt );
+	}
+	public void testIntObject()	{
+		System.out.println("testIntObject.	" + anIntObject );
+		testIntObject(anIntObject);
+		System.out.println("testIntObject.	" + anIntObject );
 	}
 
 	public static void main(String args[] )       {
-		new Args().testString();
-		new Args().testArray();
+
 		new Args().testInt();
+
+		new Args().testIntObject();
 
 		Args changingOrNot = new Args();
 		Args worker = new Args();
-		changingOrNot.print();
-		worker.testArgs(changingOrNot);
-		changingOrNot.print();
+		changingOrNot.printAnInt();
+		worker.increaseAnInt(changingOrNot);
+		changingOrNot.printAnInt();
+		changingOrNot.printAnIntObject();
+		worker.increaseAnIntObject(changingOrNot);
+		changingOrNot.printAnIntObject();
 
+		new Args().testArray();
+
+		new Args().testString();
 	}
 }
